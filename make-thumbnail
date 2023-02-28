@@ -1,18 +1,30 @@
 #!/usr/bin/env bash
 
 set -Eeuo pipefail
-FILENAME="$1"
 
-function main
-{
+## Guard against empty argument
+if [[ 0 -ge "$#" ]];
+then
+	printf "Usage:\n"
+	printf "make-thumbnail <FILENAME>\n"
+	printf "\tSpecify input filename to create image thumbnails from.\n"
+	exit 0
+else
+	## ImageMagick is required
 	if ! [[ -x /usr/bin/convert ]];
 	then
 		printf "Missing the ffmpeg 'convert' command, please install that first.\n"
 		exit 1
 	fi
-	
-	local THUMBNAIL_SIZE=128
-	local BARENAME="$(echo "$FILENAME" | cut -d '.' -f 1)"
+
+	# Is there a better way of handling the arguments?
+	FILENAME="$1"
+fi
+
+function main
+{
+	# Using a mix of string manipulation and the excellent basename utility
+	local BARENAME="$(basename "${FILENAME}" ".${FILENAME##*.}")"
 
 	convert "$FILENAME" -strip -thumbnail 128x128^ -extent 128x128 -gravity center -background white "$BARENAME"_tn.webp
 	printf "Created %s_tn.webp\n" "$BARENAME"
