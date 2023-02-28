@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+FILENAME="$1"
+
+function main
+{
+	if ! [[ -x /usr/bin/convert ]];
+	then
+		printf "Missing the ffmpeg 'convert' command, please install that first.\n"
+		exit 1
+	fi
+	
+	local THUMBNAIL_SIZE=128
+	local BARENAME="$(echo "$FILENAME" | cut -d '.' -f 1)"
+
+	convert "$FILENAME" -strip -thumbnail 128x128^ -extent 128x128 -gravity center -background white "$BARENAME"_tn.webp
+	printf "Created %s_tn.webp\n" "$BARENAME"
+	convert "$FILENAME" -strip -thumbnail 128x128^ -extent 128x128 -gravity center -background white "$BARENAME"_tn.avic
+	printf "Created %s_tn.avic\n" "$BARENAME"
+	convert "$FILENAME" -strip -thumbnail 128x128^ -extent 128x128 -gravity center -background white "$BARENAME"_tn.jpg
+	printf "Created %s_tn.jpg\n"  "$BARENAME"
+
+	echo "Done"
+}
+
+main
